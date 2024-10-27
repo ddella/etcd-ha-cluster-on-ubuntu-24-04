@@ -514,6 +514,8 @@ unset VER
 You can export these environment variables and connect to the clutser without specifying the values each time:
 ```sh
 ETCD_CLUSTER_PREFIX="k8s0"
+ETCD_CLUSTER_DOMAIN=$(hostname -d | sed 's/^[[:space:]]*//;s/[[:space:]]*$//')
+CA_CERT="etcd-ca"
 # Pick any one of the etcd server
 ETCD_NAME=${ETCD_CLUSTER_PREFIX}etcd1
 export ETCDCTL_CACERT=./${CA_CERT}.crt
@@ -523,8 +525,10 @@ export ETCDCTL_KEY=./${ETCD_NAME}.key
 ETCD_URL_STR=""
 for ETCD_NODE in "${ETCD_CLUSTER_NODES[@]}"
 do
-  # Don't use FQDN for the endpoints
+  # Use IP address for the endpoints
   ETCD_URL_STR+=",https://$(dig +short +search ${ETCD_NODE}):${CLIENT_PORT}"
+  # Use FQDN for the endpoints. FQDN proved to be unreliable at some point. ***To be verified***
+  # ETCD_URL_STR+=",https://${ETCD_NODE}.${ETCD_CLUSTER_DOMAIN}:${CLIENT_PORT}"
 done
 # Remove the 1st ","
 ETCD_URL_STR="${ETCD_URL_STR:1}"
@@ -691,6 +695,10 @@ etcdctl del "" --prefix
 
 # Quorum
 An `etcd` cluster operates so long as a member `quorum` can be established. If `quorum` is lost through transient network failures (e.g., partitions), `etcd` automatically and safely resumes once the network recovers and restores `quorum`. Raft enforces cluster consistency. For power loss, `etcd` persists the Raft log to disk. `etcd` replays the log to the point of failure and resumes cluster participation. For permanent hardware failure, the node may be removed from the cluster through runtime reconfiguration.
+
+`etcd` is designed to withstand machine failures. An `etcd` cluster automatically recovers from temporary failures (e.g., machine reboots) and tolerates up to `(N-1)/2` permanent failures for a cluster of N members. When a member permanently fails, whether due to hardware failure or disk corruption, it loses access to the cluster.
+
+If the cluster permanently loses more than `(N-1)/2` members then it disastrously fails, irrevocably losing quorum. Once quorum is lost, the cluster cannot reach consensus and therefore cannot continue accepting updates.
 
 |Cluster Size|Majority|Failure Tolerance|
 |:----:|:----:|:----:|
