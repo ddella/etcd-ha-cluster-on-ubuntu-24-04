@@ -15,7 +15,7 @@ export ETCDCTL_KEY=./${ETCD_NAME}.key   # Client private key
 export ETCDCTL_ENDPOINTS="https://$(dig +short +search ${ETCD_NODE}):${CLIENT_PORT}"
 ```
 
-## Status of a snapshot
+## Snapshot status
 To understand which revision and hash a given snapshot contains, you can use the `etcdutl snapshot status` command:
 
 > [!NOTE]  
@@ -37,7 +37,7 @@ Output:
 # Restore
 
 ## Copy Snapshot
-Copy the snapshot to each `etcd` nodes. If the location of the snapshot is available from the `etcd` nodes, you can skip this section.
+Copy the snapshot to **every** `etcd` nodes. If the location of the snapshot is available from the `etcd` nodes, you can skip this section.
 ```sh
 unset ETCD_NODES
 ETCD_NODES=(\
@@ -58,14 +58,17 @@ done
 ```
 
 ## Restore
-On **each** `etcd` node, restore the snapshot to a different directory from the production database. I'm using `tmux`.
+On **each** `etcd` node, restore the snapshot to a different directory from the production database. I'm using `tmux` to execute the commands on all `etcd` nodes simultaneously.
 ```sh
-sudo etcdutl snapshot restore ./snapshot-20241027-104531.db --data-dir /var/lib/etcd1 --bump-revision 100 --mark-compacted
-sudo chown -R etcd:etcd /var/lib/etcd1
+NEW_DIR="/var/lib/etcd1"
+sudo etcdutl snapshot restore ./snapshot-20241027-104531.db --data-dir ${NEW_DIR} --bump-revision 100 --mark-compacted
+sudo chown -R etcd:etcd ${NEW_DIR}
 ```
 
-# etcd.conf
-On **each** `etcd` node . I'm using `tmux`.
+## etcd.conf
+We need to modify the configuration file, on **every** `etcd` node, for them to use the restored database . I'm using `tmux` to execute the commands on all `etcd` nodes simultaneously.
+
+The steps to be executed on **every** `etcd` node are:
 - stop the `etcd` service
 - change the configuration of the data directory in the configuration file for the one where you did the `etcdutl snapshot restore`
 - start the `etcd` service
@@ -81,8 +84,3 @@ sudo systemctl start etcd.service
 # Check the status
 sudo systemctl status --no-pager -l etcd.service
 ```
-
-https://blog.yasithab.com/centos/etcd-ha-cluster-on-centos-7/
-https://zhangsiming-blyq.github.io/post/linux/etcd-tutorial/
-https://etcd.io/docs/v3.5/op-guide/recovery/
-
