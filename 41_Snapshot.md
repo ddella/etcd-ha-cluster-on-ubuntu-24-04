@@ -17,6 +17,9 @@ export ETCDCTL_ENDPOINTS="https://$(dig +short +search ${ETCD_NODE}):${CLIENT_PO
 etcdctl snapshot save ./snapshot-${SUFFIX}.db
 ```
 
+> [!IMPORTANT]  
+> Snapshot can only be requested from one `etcd` node, so `ETCDCTL_ENDPOINTS` flag should contain only one endpoint.
+
 Output should look like:
 ```
 {"level":"info","ts":"2024-10-27T10:45:31.082046-0400","caller":"snapshot/v3_snapshot.go:65","msg":"created temporary db file","path":"./snapshot-20241027-104531.db.part"}

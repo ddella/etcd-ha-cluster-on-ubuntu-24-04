@@ -63,7 +63,7 @@ printf "ETCD latest version is [%s] on architecture [%s]\n" "${ETCD_VER}" "${ETC
 The high level steps to create an High Availability `etcd` Cluster.
 
 > [!NOTE]  
-> If you already have your VMs on your network, you can skip to step 3.
+> If you already have your VMs on your network, you can jump to step 3, Bootstrap the `etcd` cluster.
 
 1. [Create a Linux Bridge to host the `etcd` servers (Optional)](10_Create_etcd_Network.md)
 2. [Create the VMs (Optional if already have your VMs ready)](20_Create_etcd_VMs.md)
