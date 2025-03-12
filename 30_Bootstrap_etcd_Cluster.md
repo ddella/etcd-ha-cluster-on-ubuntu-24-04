@@ -104,8 +104,8 @@ unset ETCD_VER
 ```
 
 > [!IMPORTANT]  
-> This step above **MUST** be executed on every `etcd` server.
-> later in this tutorial you will be installing the utilities `etcdctl` and `etcdutl` on your `bastion` host.
+> This step above **MUST** be executed on every `etcd` server.  
+> later in this tutorial you will be installing the utilities `etcdctl` and `etcdutl` on your `bastion` host.  
 
 ## Verify installation (Optional)
 Check the binaries you just installed:
@@ -376,7 +376,7 @@ listen-client-urls: "https://${ETCD_IP}:${CLIENT_PORT},https://127.0.0.1:${CLIEN
 listen-peer-urls: "https://${ETCD_IP}:${SERVER_PORT}"
 
 # Specifies the URLs on which ETCD listens for traffic on "/metrics" and "/health" endpoints
-listen-metrics-urls: "http://${ETCD_IP}:${HEALTH_PORT},http://127.0.0.1:${HEALTH_PORT}"
+listen-metrics-urls: "https://${ETCD_IP}:${HEALTH_PORT},http://127.0.0.1:${HEALTH_PORT}"
 
 # Initial cluster token for the etcd cluster during bootstrap. All members in the same cluster MUST have the same token.
 initial-cluster-token: ${ETCD_CLUSTER_TOKEN}
